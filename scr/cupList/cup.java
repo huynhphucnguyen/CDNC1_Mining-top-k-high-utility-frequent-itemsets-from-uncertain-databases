@@ -2,17 +2,18 @@ package cupList;
 
 import java.util.List;
 
-public class cup<T1, T2, T3> implements cupInfo<T1, T2, T3>{
+//Generic type T1 T2 T3
+public class Cup<T1, T2, T3> implements cupInfo<T1, T2, T3>{
         T1 namePattern;
         T3 expSupOfPattern;
-        List<tepList<T2, T3>> tep;
-        T3 max;
+        List<Tep<T2, T3>> Tep;
+        T3 Max;
 
-    public cup(T1 namePattern, T3 expSupOfPattern, List<tepList<T2, T3>> tep, T3 max){
+    public Cup(T1 namePattern, T3 expSupOfPattern, List<Tep<T2, T3>> Tep, T3 Max){
         this.namePattern = namePattern;
         this.expSupOfPattern = expSupOfPattern;
-        this.tep = tep;
-        this.max = max;
+        this.Tep = Tep;
+        this.Max = Max;
     }
 
     @Override
@@ -26,17 +27,17 @@ public class cup<T1, T2, T3> implements cupInfo<T1, T2, T3>{
     }
 
     @Override
-    public List<tepList<T2, T3>> getTEPList() {
-        return tep;
+    public List<Tep<T2, T3>> getTEPList() {
+        return Tep;
     }
 
     @Override
     public T3 getMax() {
-        return max;
+        return Max;
     }
 
     @Override
     public String toString() {
-        return "NamePattern: " + namePattern + ", expSupOfPattern: " + expSupOfPattern + ", TEPList: " + tep + ", Max: " + max;
+        return "NamePattern: " + namePattern + "\nexpSupOfPattern: " + expSupOfPattern + "\nTEPList: \n" + Tep + "\n Max: " + Max + "\n";
     }
 }

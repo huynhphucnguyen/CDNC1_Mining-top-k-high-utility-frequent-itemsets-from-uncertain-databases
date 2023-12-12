@@ -1,5 +1,5 @@
 package TUFP;
-
+//Generic type T1 T2 T3
 public class topK <T1, T2>{
     T1 namePattern;
     T2 expSupOfPattern;

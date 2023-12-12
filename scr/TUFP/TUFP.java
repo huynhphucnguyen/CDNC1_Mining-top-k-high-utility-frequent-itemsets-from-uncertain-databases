@@ -15,7 +15,7 @@ import utility.*;
 public class TUFP{
     public static int k = 6; //top - k
     public List<topK<String, Double>> topKUFP;
-    public List<cup<String, Integer, Double>> cupl;
+    public List<Cup<String, Integer, Double>> cupl;
     
     
     public void readData(String filePath) {
@@ -26,24 +26,24 @@ public class TUFP{
 
             String[] itemName = scanner.nextLine().split(" "); //name intem in 1st line
             // Convert it to a List<String>
-            List<String> itemList = new ArrayList<>();
+            List<String> itemList = new ArrayList<>(); //This is list of item's name
             for (String item : itemName) {
                 itemList.add(item);
             }
-            while (scanner.hasNextLine()) {
+            while (scanner.hasNextLine()) { //get list of ep's list
                 String line = scanner.nextLine();
                 String[] values = line.split(" ");
                 List<Double> eps = new ArrayList<>();  
                 for (int i = 0; i < values.length; i++) {
                     String valueStr = values[i];
                     Double ep = null;
-                    ep = Double.parseDouble(valueStr);
+                    ep = Double.parseDouble(valueStr); //String to Duoble
                     eps.add(ep);
                 }
-                existensialProbability.add(eps); // list of ep of transaction
+                existensialProbability.add(eps); // list of ep
             }
             cupList<String, Integer, Double> cupTempt = new cupList<>();
-            cupl = cupTempt.createCupList(itemList, existensialProbability);
+            cupl = cupTempt.createCupList(itemList, existensialProbability); // cuplist
             scanner.close();
             
         } catch (FileNotFoundException e) {
@@ -51,10 +51,11 @@ public class TUFP{
         }
     }
     // public void TUFP(){
+        // readData(filePath);
 
     // }
 
-    // public void TUFPSearch(cupList<T> cup, cupList<T> currentCup, int start, List<topK<T>> topKUFP){
+    // public void TUFPSearch(cupList<T> cup, cupList<T> currentCup, List<topK<T>> topKUFP){
         
     // }
 

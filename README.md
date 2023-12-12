@@ -2,4 +2,4 @@
 
 Chạy chương trình:
 javac -d bin main.java
-java main 
+java -cp bin main 
