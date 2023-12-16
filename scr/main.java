@@ -8,14 +8,14 @@ import cupList.*;
 
 public class Main {
     public static void main(String[] args) {
-        String filePath = "../database.txt";
-        // int k = 6 top k-1
+        String filePath = "../database.txt"; /*"../Foodmart_ep.txt";*/
+        int k = 50; //top k-1
         TUFP tufp = new TUFP();
-        tufp.TUFP(filePath/*, k*/);
+        tufp.TUFP(filePath, k);
         List<Cup<String, Integer, Double>> cupls = tufp.cupl;
-        for(Cup<String, Integer, Double> pattern : cupls){
-            System.out.println(pattern); //print list of cup (Cup_List)
-        }
+        // for(Cup<String, Integer, Double> pattern : cupls){
+        //     System.out.println(pattern); //print list of cup (Cup_List)
+        // }
         for(topK<String, Double> t:tufp.topKUFP){
             System.out.println(t); // print top-k UFP
         }
