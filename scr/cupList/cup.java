@@ -36,6 +36,7 @@ public class Cup<T1, T2, T3> implements cupInfo<T1, T2, T3>{
         return Max;
     }
 
+
     @Override
     public String toString() {
         return "NamePattern: " + namePattern + "\nexpSupOfPattern: " + expSupOfPattern + "\nTEPList: \n" + Tep + "\n Max: " + Max + "\n";

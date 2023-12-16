@@ -16,6 +16,7 @@ public class TUFP{
     public static int k = 6; //top - k
     public List<topK<String, Double>> topKUFP;
     public List<Cup<String, Integer, Double>> cupl;
+    public Double threshold = 0.0;
     
     
     public void readData(String filePath) {
@@ -50,14 +51,41 @@ public class TUFP{
             System.out.println("File not found: " + e.getMessage());
         }
     }
-    // public void TUFP(){
-        // readData(filePath);
+   
 
-    // }
 
-    // public void TUFPSearch(cupList<T> cup, cupList<T> currentCup, List<topK<T>> topKUFP){
+    public void TUFPSearch(List<Cup<String, Integer, Double>> currentCup){
+        Double overestimate = currentCup.get(0).getExpSupOfPattern()*currentCup.get(1).getMax();
         
-    // }
+        if(overestimate < threshold){
+            return;
+        }else{
+            for(int i=0; i<currentCup.size()-1; i++){
+                List<Cup<String, Integer, Double>> newCupList = new ArrayList<>();
+                for(int j=i+1; j<currentCup.size(); j++){
+                    mathFormulas<Integer, Double> math = new mathFormulas<>();
+                    Double expSupMin = math.expSup(null)
+                    if (currentCup.get(i).getExpSupOfPattern()*currentCup.get(j).getMax()) {
+                        
+                    }
+                }
+            }
+        }
+
+        TUFPSearch()
+    }
+
+     public void TUFP(String filePath/*, int k*/){ 
+        readData(filePath);
+        topKUFP = new ArrayList<>();
+        List<Cup<String, Integer, Double>> currentCup = new ArrayList<>(); 
+        for(int i=0; i<k; i++){
+            topKUFP.add(new topK<String,Double>(cupl.get(i).getNamePattern(),cupl.get(i).getExpSupOfPattern()));
+            currentCup.add(cupl.get(i));
+        }
+        threshold = topKUFP.get(topKUFP.size()-1).getExpSupOfPattern();
+        TUFPSearch(currentCup);
+    }
 
 
 

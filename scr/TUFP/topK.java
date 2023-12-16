@@ -13,13 +13,13 @@ public class topK <T1, T2>{
         return namePattern;
     }
 
-    public T2 expSupOfPattern(){
+    public T2 getExpSupOfPattern(){
         return expSupOfPattern;
     }
 
     @Override
     public String toString(){
-        return namePattern + " " + expSupOfPattern + "\n";
+        return namePattern + " : " + expSupOfPattern + "\n";
     }
 }
 
