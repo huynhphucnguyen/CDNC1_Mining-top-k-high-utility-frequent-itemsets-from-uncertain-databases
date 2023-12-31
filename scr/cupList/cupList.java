@@ -22,7 +22,7 @@ public class cupList<T1, T2, T3 extends Comparable<T3>> {
      * @return a list of sigle cup
      */
 
-    public List<Cup<T1, T2, T3>> createCupList(List<T1> itemName, List<List<T3>> existentialProbability){
+    public List<Cup<T1, T2, T3>> createCupList(List<T1> itemName, List<List<T3>> existentialProbability, int k){
         
         cupl = new ArrayList<>();
 
@@ -44,10 +44,24 @@ public class cupList<T1, T2, T3 extends Comparable<T3>> {
             mathFormulas math = new mathFormulas<>();
             T3 expSupValue = (T3) math.expSup(tep); //cal expSup of item
 
-            cupl.add(new Cup<T1, T2, T3>(name, expSupValue, tep, findMax(tep))); //add a new cup into cup list
+
+            T3 threshold = null;
+            if (cupl.size()>=k) {
+                //set new threshold
+                threshold = cupl.get(cupl.size()-1).getExpSupOfPattern();
+                if(expSupValue.compareTo(threshold)>0){
+
+                    cupl.add(new Cup<T1, T2, T3>(name, expSupValue, tep, findMax(tep))); //add a new cup into cup list
+                    selectionSort(cupl);
+                    cupl.remove(cupl.size()-1); //remove last UFP
+                }
+            }else{
+                cupl.add(new Cup<T1, T2, T3>(name, expSupValue, tep, findMax(tep)));
+            }
+            //sort descending for expSup
+            selectionSort(cupl);
+
         }
-        //sort descending for expSup
-        selectionSort(cupl);
         return cupl;
     }
 
@@ -58,8 +72,10 @@ public class cupList<T1, T2, T3 extends Comparable<T3>> {
      */
     
     public T3 findMax(List<Tep<T2, T3>> list){
+
+        Double zeroValue = 0.0;
         //create max as the first Prob value in tep
-        T3 max = list.get(0).getExistensialProbability();
+        T3 max = (T3) zeroValue;
         //for each item in tep
         for (Tep<T2, T3> item : list) {
             //if existensial probability of item > max

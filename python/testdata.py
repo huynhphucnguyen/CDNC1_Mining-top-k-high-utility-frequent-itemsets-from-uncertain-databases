@@ -10,7 +10,7 @@ def read_transactions_from_file(filename):
     return transactions
 
 # Read transactions from the text file
-transactions = read_transactions_from_file(".\input_retail.txt")
+transactions = read_transactions_from_file("./input_retail.txt")
 
 # Extract unique products from the transactions
 unique_products = set(product for transaction in transactions for product in transaction)
@@ -27,7 +27,7 @@ for transaction in transactions:
     existential_probabilities.append(probabilities)
 
 # Write the products and existential probabilities to a text file
-with open(".\ep_retail.txt", "w") as file:
+with open("./ep_retail.txt", "w") as file:
     file.write(" ".join(map(str, unique_products)) + "\n")
     for probabilities in existential_probabilities:
         file.write(" ".join(f"{p:.1f}" for p in probabilities) + "\n")

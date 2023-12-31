@@ -24,6 +24,10 @@ public class mathFormulas<T1 extends Comparable<T1>, T2 extends Number> {
         //contruct sum with value is null
         T2 sum = null;
 
+        if (tep.isEmpty()){
+            Double zeroValue = 0.0;
+            return (T2) zeroValue;
+        }
         //for each tep
         for (Tep<T1, T2> t : tep) {
             //if sum equal null
@@ -51,8 +55,8 @@ public class mathFormulas<T1 extends Comparable<T1>, T2 extends Number> {
                     i++;
                 }else{
                     // Update the result
-                        result =  addNumbers(result, (T2)
-                            Double.valueOf(
+                    result =  addNumbers(result,
+                            (T2) Double.valueOf(
                                 tX.getExistensialProbability().doubleValue() * tY.getExistensialProbability().doubleValue()
                             ));
                         i++;

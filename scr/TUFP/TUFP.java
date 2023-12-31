@@ -1,15 +1,13 @@
 package TUFP;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
 
 import ca.pfv.spmf.tools.MemoryLogger;
 import cupList.*;
@@ -51,9 +49,11 @@ public class TUFP{
     
     /**
      * read the input file: a uncertain dataset (trasactions)
+     *
      * @param filePath
+     * @param k
      */
-    public void readData(String filePath) {
+    public void readData(String filePath, int k) {
         try {
             //Read the input file
             FileReader file = new FileReader(filePath);
@@ -85,12 +85,9 @@ public class TUFP{
 
                 //get Prob at item in the index i (can change i=0 or i=1 if data have TID (1) or not (0))
                 for (int i = 0; i < values.length; i++) {
-                    String valueStr = values[i];
-                    Double ep = null;
-                    //convert String to Double
-                    ep = Double.parseDouble(valueStr);
+                    Double ep = Double.valueOf(values[i]);
                     //add into a list Prob
-                    eps.add(ep);
+                     .add(ep);
                 }
 
                 //add a eps list into a new list
@@ -105,7 +102,7 @@ public class TUFP{
             /**
              * use method @see createCupList to make sigle cup
              */
-            cupl = cupTempt.createCupList(itemList, existensialProbability); // cuplist
+            cupl = cupTempt.createCupList(itemList, existensialProbability,k); // cuplist
 
             //size of first cup list
             itemsetCount = cupl.size();
@@ -116,6 +113,28 @@ public class TUFP{
             System.out.println("File not found: " + e.getMessage());
         }
     }
+
+
+    /**
+     *
+     * @param input
+     * @return
+     */
+    public static String removeDuplicates(String input) {
+        String[] elements = input.split(",\\s*");
+        StringBuilder result = new StringBuilder();
+
+        for (String element : elements) {
+            if (!result.toString().contains(element)) {
+                if (!result.isEmpty()) {
+                    result.append(", ");
+                }
+                result.append(element);
+            }
+        }
+        return result.toString();
+    }
+
    
     /** 
      * method to combine two of cup XY
@@ -127,10 +146,7 @@ public class TUFP{
         List<Tep<Integer, Double>> tepListXY = new ArrayList<>();
         
         //combine name Cup X with name Cup Y --> name of Cup XY
-        StringBuilder combined = new StringBuilder(cupX.getNamePattern());
-        combined.append(", "); //seperate by ", "
-        combined.append(cupY.getNamePattern());
-        String nameXY = String.valueOf(combined); //convert StringBuilder to String
+        String nameXY = removeDuplicates(cupX.getNamePattern()+", "+cupY.getNamePattern());
         
         //cal expSup of cupXY by method expSupXY in mathFormulas
         Double expSup = math.expSupXY(cupX.getTEPList(),cupY.getTEPList());
@@ -174,7 +190,35 @@ public class TUFP{
         //return the new cup after combined
         return new Cup<String,Integer,Double>(nameXY, expSup, tepListXY, maxXY);
     }
-    
+
+
+    /**
+     *
+     * @param combined
+     * @param k
+     */
+    public void UFPHeplerMethod(Cup<String, Integer, Double> combined, int k){
+        //insert new UFP into top-k
+        topKUFP.add(new topK<String, Double>(combined.getNamePattern(), combined.getExpSupOfPattern()));
+        //use Comparator to sort topKUFP
+        topKUFP.sort(new Comparator<topK<String, Double>>() {
+            @Override
+            public int compare(topK<String, Double> t1, topK<String, Double> t2) {
+                // Sort topKUFP
+                return Double.compare(t2.getExpSupOfPattern(), t1.getExpSupOfPattern());
+            }
+        });
+
+        //if size of top-k UFP > k
+        if (topKUFP.size() > k) {
+            topKUFP.remove(topKUFP.size() - 1); //remove last UFP
+            //set new threshold
+            threshold = topKUFP.get(topKUFP.size() - 1).getExpSupOfPattern();
+        }
+    }
+
+
+
 
     /**
      * method use call combineCup(...) to combine these cup then search the top UFP
@@ -183,65 +227,44 @@ public class TUFP{
      */
     
     public void TUFPSearch(List<Cup<String, Integer, Double>> currentCup, int k){
-        // for(Cup<String, Integer, Double> c:currentCup){
-        //     System.out.println(c);
-        // }
-        // System.out.println("--------------------------------------");
-        
         //if size of current cup list > 1
-        if(currentCup.size()>1){
+        if(currentCup.size()<=1) {
+            return;
+        }
 
-            //cal the overestimate expSup of two firt cup: overestimate = expSup(X)*Max(Y)
-            Double overestimate = currentCup.get(0).getExpSupOfPattern()*currentCup.get(1).getMax();
-            
-            //if overestimate < threshold, then stop searching.
-            if(overestimate < threshold){
-                return;
-            }else{
-                //for cup[0] to cup[n-1] of current cup 
-                for(int i=0; i<currentCup.size()-1; i++){
+        //for cup[0] to cup[n-1] of current cup
+        for(int i=0; i<currentCup.size()-1; i++){
 
-                    //a new cup list will use to the next search
-                    List<Cup<String, Integer, Double>> newCupList = new ArrayList<>();
+            //a new cup list will use to the next search
+            List<Cup<String, Integer, Double>> newCupList = new ArrayList<>();
 
-                    //for cup[1] to cup[n] of current cup
-                    for(int j=i+1; j<currentCup.size(); j++){
-                        
-                        //combine two of cup X and cup Y
-                        Cup<String, Integer, Double> cupXY = combineCup(currentCup.get(i), currentCup.get(j));
-                        
-                        itemsetCount++; //increment the cup
-                        
-                        //if expSup of cupXY > threshold
-                        if (cupXY.getExpSupOfPattern() > threshold) {
-                        //insert new UFP into top-k
-                            topKUFP.add(new topK<String,Double>(cupXY.getNamePattern(), cupXY.getExpSupOfPattern()));
-                            //use Comparator to sort topKUFP
-                            Collections.sort(topKUFP, new Comparator<topK<String,Double>>() {
-                                @Override
-                                public int compare(topK<String,Double> t1, topK<String,Double> t2) {
-                                    // Sort topKUFP
-                                    return Double.compare(t2.getExpSupOfPattern(), t1.getExpSupOfPattern());
-                                }
-                            });
+            //for cup[1] to cup[n] of current cup
+            for(int j=i+1; j<currentCup.size(); j++){
 
-                            //if size of top-k UFP > k 
-                            if(topKUFP.size()>k){
-                                topKUFP.remove(topKUFP.size()-1); //remove last UFP
-                                //set new threshold
-                                threshold = topKUFP.get(topKUFP.size()-1).getExpSupOfPattern(); 
-                            }
-                            newCupList.add(cupXY); //add into new cup list
-                        }else{
-                            newCupList.add(cupXY);//add into new cup list
-                        }
-                    }
+                //cal the overestimate expSup of two firt cup: overestimate = expSup(X)*Max(Y)
+                Double overestimate = currentCup.get(i).getExpSupOfPattern()*currentCup.get(j).getMax();
 
-                    TUFPSearch(newCupList,k); //continute search
+                //if overestimate < threshold, then stop searching.
+                if(overestimate < threshold){
+                    return;
+                }
+
+                //combine two of cup X and cup Y
+                Cup<String, Integer, Double> combined = combineCup(currentCup.get(i), currentCup.get(j));
+
+                itemsetCount++; //increment the cup
+
+                //if expSup of cupXY > threshold
+                if (combined.getExpSupOfPattern() > threshold) {
+                //insert new UFP into top-k
+                    UFPHeplerMethod(combined,k);
+                    newCupList.add(combined); //add into new cup list
+                }else{
+                    newCupList.add(combined);//add into new cup list
                 }
             }
-        }else {
-            return;
+
+            TUFPSearch(newCupList,k); //continute search
         }
     }
 
@@ -250,7 +273,7 @@ public class TUFP{
      * @param filePath path of database file
      * @param k the number of UFP in top-k
      */
-    public void TUFP(String filePath, int k){
+    public void runTUFP(String filePath, int k){
         // record start time
         startTimestamp = System.currentTimeMillis();
 
@@ -261,28 +284,24 @@ public class TUFP{
         databaseSize = 0;
 
         //read input file
-        readData(filePath);
+        readData(filePath, k);
 
-        topKUFP = new ArrayList<>();
+        topKUFP = new LinkedList<>();
         List<Cup<String, Integer, Double>> currentCup = new ArrayList<>(); 
         
         // check memory usage
         MemoryLogger.getInstance().checkMemory();
 
         //for each cup
-        for(int i=0; i<cupl.size(); i++){
-            /*if i < k that means the number of the index in the cup list is still smaller 
+        for (Cup<String, Integer, Double> cup : cupl) {
+            /*if i < k that means the number of the index in the cup list is still smaller
             the number of UFPs which needed, if not then stop loop*/
-            if(i<k){
-                //create top-k UFP
-                topKUFP.add(new topK<String,Double>(cupl.get(i).getNamePattern(),cupl.get(i).getExpSupOfPattern()));
-                //create the current cup for seaching
-                currentCup.add(cupl.get(i));
-            }else{
-                break;
-            }
+            //create top-k UFP
+            topKUFP.add(new topK<String, Double>(cup.getNamePattern(), cup.getExpSupOfPattern()));
         }
-        
+
+        currentCup = cupl;
+
         //set threshold
         threshold = topKUFP.get(topKUFP.size()-1).getExpSupOfPattern();
 
