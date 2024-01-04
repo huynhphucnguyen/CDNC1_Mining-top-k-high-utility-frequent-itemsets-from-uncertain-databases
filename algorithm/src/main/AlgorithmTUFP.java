@@ -57,10 +57,10 @@ public class AlgorithmTUFP<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
                 List<T1> item = new ArrayList<>();
                 List<T3> prob = new ArrayList<>();
 
-                for (int i=1; i<probList.length; i++){
+                for (int i=0; i<probList.length; i++){
 //                    System.out.println(probList[i]);
                     if (!probList[i].equals("0")){
-                        item.add((T1) itemName[i-1]);
+                        item.add((T1) itemName[i]);
                         prob.add((T3)Double.valueOf(probList[i]));
                     }
                 }

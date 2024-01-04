@@ -9,7 +9,7 @@ public class MainTestTUFPBMS {
     public static void main(String[] args) {
 
         //get path of data file
-        String filePath =  "data/input_BMS.txt";
+        String filePath =  "../../data/input_BMS.txt";
 
         Scanner scanner = new Scanner(System.in);
         // Taking input as String
@@ -29,7 +29,7 @@ public class MainTestTUFPBMS {
         System.out.println("===================================================");
         System.out.println("Algorithm finished and result is saved in file 'output_BMS.txt' ");
 
-        tufp.printStats("out/output_BMS.txt");
+        tufp.printStats("../../out/output_BMS.txt");
     }
 
 }

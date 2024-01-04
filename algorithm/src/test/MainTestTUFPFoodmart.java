@@ -9,7 +9,7 @@ public class MainTestTUFPFoodmart {
     public static void main(String[] args) {
 
         //get path of data file
-        String filePath =  "data/input_foodmart.txt";
+        String filePath =  "../../data/input_foodmart.txt";
 
         Scanner scanner = new Scanner(System.in);
         // Taking input as String
@@ -29,6 +29,6 @@ public class MainTestTUFPFoodmart {
         System.out.println("===================================================");
         System.out.println("Algorithm finished and result is saved in file 'output_foodmart.txt' ");
 
-        tufp.printStats("out/output_foodmart.txt");
+        tufp.printStats("../../out/output_foodmart.txt");
     }
 }
