@@ -20,7 +20,7 @@ public class MainTestTUFPT10I4D100K {
         int k = Integer.parseInt(inputString);
 
 
-        System.out.println("Algorithm is running . . .");
+        System.out.println("Algorithm is running with T10I4D100K");
 
         //// Applying the TUFP algorithm
         AlgorithmTUFP<String, Integer, Double> tufp = new AlgorithmTUFP<>();

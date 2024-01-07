@@ -12,6 +12,13 @@ import main.interfaces.AlgorithmTUFPInterface;
 import main.objects.*;
 import main.resource.MemoryLogger;
 
+/**
+ * This is an implementation of the TUFP algorithm.
+ * The TUFP algorithm finds top k uncertain frequent patterns and their expected support.
+ * @param <T1> type of name's UFPs
+ * @param <T2> type of TID in TEP list of CUP
+ * @param <T3> type of Expected Support, item's probability, threshold
+ */
 public class AlgorithmTUFP<T1, T2 extends Number & Comparable<T2>, T3 extends Number & Comparable <T3>> implements AlgorithmTUFPInterface<T1, T2, T3> {
 
     /** start time of latest execution */
@@ -29,23 +36,27 @@ public class AlgorithmTUFP<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
     /**the result top-k UFP in the end*/
     public List<UFP<T1, T3>> topUFP;
 
-    /** include the sigle cup */
+    /** include the single cup */
     public List<Cup<T1, T2, T3>> cupl;
 
     /**threshold is the condition to get into top-k UFP */
     public T3 threshold = (T3) Double.valueOf(0.0);
 
-
+    /**
+     * read the input file a uncertain dataset (transactions)
+     * @param filePath path to dataset file
+     * @param k number of top-k UFP
+     */
     @Override
     public void readData(String filePath, int k) {
-
+        // use try-with-resource to read file with BufferedReader
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 
+            //list of transaction
             List<Transaction<T1, T3>> transactions = new ArrayList<>();
 
+            //read first line to get items from data
             String[] itemName = reader.readLine().split(",\\s|\\s|\\t|,");
-
-            // System.out.println(itemList.size());
 
             String line;
             //read each line to get Prob in transaction of item
@@ -54,47 +65,56 @@ public class AlgorithmTUFP<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
                 //split was separated by ','; space; tab or ', ' to array
                 String[] probList = line.split(",\\s|\\s|\\t|,");
 
+                // create two list of item and probability of a transaction
                 List<T1> item = new ArrayList<>();
                 List<T3> prob = new ArrayList<>();
 
                 for (int i=0; i<probList.length; i++){
-//                    System.out.println(probList[i]);
+//                   //check prob equal 0 is true or not, if not add to item's list and probability's list
                     if (!probList[i].equals("0")){
                         item.add((T1) itemName[i]);
                         prob.add((T3)Double.valueOf(probList[i]));
                     }
                 }
 
-                //add a eps list into a new list
+                //add a transaction list into transaction's list
                 transactions.add(new Transaction<>(item,prob));
                 //increment databaseSize (number of transaction)
                 databaseSize++;
             }
 
+            //call method to create CUP from the transaction's list
             createFirstUFPs(transactions, k);
 
         } catch (IOException e) {
+            //stop the algorithm if file not found
             System.out.println("File not found: " + e.getMessage());
             System.out.println("STOP ALGORITHM !!!");
             System.exit(0);
         }
-
     }
 
+    /**
+     * create a list of single cup from the given transaction's list
+     * @param transactions list of transactions
+     * @param k number of top-k UFPs
+     */
     @Override
     public void createFirstUFPs(List<Transaction<T1, T3>> transactions, int k){
 
-        cupl = new LinkedList<>();
+        cupl = new LinkedList<>(); // list of CUP list
+        Integer TID = 1; // transaction ID in a TEP list
 
-        Integer TID = 1;
-
+        // for each transaction
         for (Transaction<T1, T3> transaction:transactions){
 
+            //for each item in this transaction
             for (int i = 0; i<transaction.getItems().size(); i++) {
+                // get item and probability
                 T1 item = transaction.getItems().get(i);
                 T3 probability = transaction.getProbabilities().get(i);
 
-                // Check if a Cup for this item already exists in the result list
+                // Check if a Cup for this item already exists in the CUP list
                 boolean cupExists = false;
                 for (Cup<T1, T2, T3> cup : cupl) {
                     if (cup.getNamePattern().equals(item)) {
@@ -111,7 +131,7 @@ public class AlgorithmTUFP<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
                     }
                 }
 
-                // If a Cup doesn't exist, create a new one and add it to the result list
+                // If a Cup doesn't exist, create a new one and add it to the CUP list
                 if (!cupExists) {
                     List<Tep<T2, T3>> tepList = new ArrayList<>();
                     tepList.add(new Tep<>((T2) TID, probability));
@@ -119,15 +139,17 @@ public class AlgorithmTUFP<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
                     cupl.add(cup);
                 }
 
+                // Sort top UFPs
                 cupl.sort((t1, t2) -> {
-                    // Sort topKUFP
+
                     return Double.compare(t2.getExpSupOfPattern().doubleValue(), t1.getExpSupOfPattern().doubleValue());
                 });
             }
-            TID++;
+            TID ++; // increment TID
 
         }
 
+        //get the first top UFPs from CUP list
         for(Cup<T1, T2, T3> cup:cupl){
             if (k>0) {
                 topUFP.add(new UFP<>(cup.getNamePattern(), cup.getExpSupOfPattern()));
@@ -136,74 +158,91 @@ public class AlgorithmTUFP<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
         }
     }
 
+    /**
+     * remove duplicate character in a string
+     * @param input a duplicate string
+     * @return a non duplicate string
+     */
     @Override
     public T1 removeDuplicates(String input) {
 
         String[] elements = input.split(",\\s*");
         StringBuilder result = new StringBuilder();
 
+        // for each element
         for (String element : elements) {
+            // check the element in result or not
             if (!result.toString().contains(element)) {
+                // check result have element or not
                 if (!result.isEmpty()) {
+                    //each element is separated by ", "
                     result.append(", ");
                 }
                 result.append(element);
             }
         }
-
         return (T1) String.valueOf(result);
 
     }
 
+    /**
+     * combined two TEP list to make a new TEP list
+     * @param tepListX TEP list of a CUP X
+     * @param tepListY TEP list of a CUP Y
+     * @return a combined TEP list
+     */
     @Override
     public List<Tep<T2, T3>> combineTep(List<Tep<T2, T3>> tepListX, List<Tep<T2, T3>> tepListY){
 
+        // new TEP list
         List<Tep<T2, T3>> tepListXY = new ArrayList<>();
         int i = 0;
         int j = 0;
 
+        // for each TID in two TEP list
         while(i < tepListX.size() && j < tepListY.size()){
             Tep<T2, T3> tX = tepListX.get(i);
             Tep<T2, T3> tY = tepListY.get(j);
 
+            // check TID in two TEP list
+            // if TID in tepListX smaller than TID in tepListY
             if(tX.getTID().intValue() < tY.getTID().intValue()){
+                // move next TID in tepListX
                 i++;
             }
+            // if TID in tepListX greater than TID in tepListY
             else if(tX.getTID().intValue() > tY.getTID().intValue()){
+                // move next TID in tepListY
                 j++;
             }
+            // if two TID are equal
             else{
-
+                // combine two TID
                 Double temp = Double.valueOf(Math.round((tX.getExistentialProbability().doubleValue()*tY.getExistentialProbability().doubleValue())*100.0)/100.0);
                 T3 tepXY = (T3) temp;
-
+                // add new tep in to new TEP list
                 tepListXY.add(new Tep<T2, T3>(tX.getTID(), tepXY));
+                //move next TID
                 i++;
                 j++;
             }
         }
-
         return tepListXY;
     }
 
+    /**
+     * method to combine two of cup XY
+     * @param cupX cup of item X
+     * @param cupY cup of item Y
+     * @return a combined CUP
+     */
     @Override
     public Cup<T1, T2, T3> combineCup(Cup<T1, T2, T3> cupX, Cup<T1, T2, T3> cupY) {
 
-//        if (cupX.getNamePattern().equals("58") && cupY.getNamePattern().equals("52")){
-//            System.out.println(cupX.getTEPList());
-//            System.out.println(cupY.getTEPList());
-//        }
-
         //combine tep list
         List<Tep<T2, T3>> tepListXY = combineTep(cupX.getTEPList(), cupY.getTEPList());
-//        if (cupX.getNamePattern().equals("58") && cupY.getNamePattern().equals("52")){
-//            System.out.println(tepListXY);
-//        }
-
-
-        //combine name Cup X with name Cup Y --> name of Cup XY
+        //combine name's CupX with name's Cup Y --> name of Cup XY
         T1 nameXY = removeDuplicates( cupX.getNamePattern()+", "+cupY.getNamePattern());
-
         //max of Prob in TEP of Cup XY
         T3 maxXY = (T3) Double.valueOf(0.0);
 
@@ -222,11 +261,16 @@ public class AlgorithmTUFP<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
 
     }
 
+    /**
+     * method create a new UFP and add it into the result
+     * @param combined a combined CUP
+     * @param k number of top-k UFPs
+     */
     private void TUFPSearchHelperMethod(Cup<T1, T2, T3> combined, int k) {
 
         //insert new UFP into top-k
         topUFP.add(new UFP<T1, T3>(combined.getNamePattern(), combined.getExpSupOfPattern()));
-        //use Comparator to sort topUFP
+        //use Comparable to sort topUFP
         topUFP.sort((t1, t2) -> {
             // Sort topUFP
             return Double.compare(t2.getExpSupOfPattern().doubleValue(), t1.getExpSupOfPattern().doubleValue());
@@ -238,46 +282,65 @@ public class AlgorithmTUFP<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
             //set new threshold
             threshold = topUFP.get(topUFP.size() - 1).getExpSupOfPattern();
         }
-
     }
 
+    /**
+     *
+     * @param cupX cup of item X
+     * @param cupY cup of item Y
+     * @param k number of top-k UFPs
+     * @return a combined CUP
+     */
     private Cup<T1, T2, T3> combineHelper(Cup<T1,T2,T3> cupX, Cup<T1,T2,T3> cupY, int k) {
 
-        Cup<T1, T2, T3> combined = combineCup(cupX, cupY);
-        candidates++;
+        Cup<T1, T2, T3> combined = combineCup(cupX, cupY); // combine cups
+        candidates++; // increment candidate engaged to make top UFPs
+        // check the condition before add to the result
         if (combined.getExpSupOfPattern().doubleValue() > threshold.doubleValue()) {
             TUFPSearchHelperMethod(combined,k);
         }
         return combined;
     }
 
+    /**
+     *
+     * @param queue list of the CUPs
+     * @param k number of top-k UFPs
+     * @param numberFirstLetter the first letter in CUP's name in the previous search
+     */
     @Override
     public void TUFPSearch(List<Cup<T1, T2, T3>> queue, int k, int numberFirstLetter) {
 
+        // contain queue for next search
         List<Cup<T1, T2, T3>> queueTemp = new ArrayList<>();
+        // use to check the condition for combination
         double overestimate = 0.0;
 
+        // for each cup in queue begin at 1st cup -> size - 1
         for (int i = 0; i < queue.size() - 1; i++) {
-
+            // for each cup in queue begin at the 2nd cup -> end
             for (int j = i + 1; j < queue.size(); j++) {
                 if (numberFirstLetter == 0) {
-
+                    // calculate overestimate
                     overestimate = queue.get(i).getExpSupOfPattern().doubleValue() * queue.get(j).getMax().doubleValue();
-
+                    // stop if overestimate smaller than threshold
                     if (overestimate < threshold.doubleValue()) {
                         return;
                     }
+                    // add combined cup for next search
                     queueTemp.add(combineHelper(queue.get(i), queue.get(j),k));
                 }else {
-
+                    // get first letter of CUP's name
                     String letterNameX = String.valueOf(queue.get(i).getNamePattern()).split(", ")[numberFirstLetter];
                     String letterNameY = String.valueOf(queue.get(j).getNamePattern()).split(", ")[numberFirstLetter];
 
+                    // check if two letter is equal
                     if (letterNameX.equals(letterNameY)) {
                         overestimate = queue.get(i).getExpSupOfPattern().doubleValue() * queue.get(j).getMax().doubleValue();
                         if (overestimate < threshold.doubleValue()) {
                             return;
                         }
+                        // add combined cup for next search
                         queueTemp.add(combineHelper(queue.get(i), queue.get(j),k));
                     } else {
                         break;
@@ -285,11 +348,16 @@ public class AlgorithmTUFP<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
                 }
             }
         }
-        numberFirstLetter++;
+        numberFirstLetter ++; // increment number letter for next search
+        // call next search
         TUFPSearch(queueTemp,k,numberFirstLetter);
     }
 
-
+    /**
+     * method to run TUFP algorithm
+     * @param filePath path of database file
+     * @param k number of top-k UFPs
+     */
     @Override
     public void runTUFPAlgorithm(String filePath, int k) {
 
@@ -311,22 +379,24 @@ public class AlgorithmTUFP<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
         List<Cup<T1, T2, T3>> currentCup = new ArrayList<>();
 
 
-        // error handle if cupl NULL
-        if(cupl == null){
+        // handle the null cup
+        if(cupl == null) {
             System.out.println("There isn't CUP List which was created. STOP ALGORITHM !!!");
             System.exit(0);
         }
 
+        // add into currentCup with number element is k
         for(int i=0; i<cupl.size() && i<k; i++){
             currentCup.add(cupl.get(i));
         }
 
+        // number of candidates
         candidates = currentCup.size();
 
         //set threshold
         threshold = topUFP.get(topUFP.size()-1).getExpSupOfPattern();
 
-        //numberFirstLetter
+        //number of first letter
         int numberFirstLetter = 0;
 
 
@@ -341,6 +411,10 @@ public class AlgorithmTUFP<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
 
     }
 
+    /**
+     * Print statistics about the algorithm execution
+     * @param path of the output file
+     */
     public void printStats(String path) {
 
         // Use try-with-resources to automatically close the PrintWriter
@@ -374,8 +448,4 @@ public class AlgorithmTUFP<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
         System.out
                 .println("===================================================");
     }
-
-
-
-
 }

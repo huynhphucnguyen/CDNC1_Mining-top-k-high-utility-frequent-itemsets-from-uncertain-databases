@@ -6,7 +6,7 @@ public class Main {
     public static void main(String[] args) {
 
         //get path of data file
-        String filePath = "data/database.txt";
+        String filePath = "../../data/database.txt";
 
         Scanner scanner = new Scanner(System.in);
         // Taking input as String
@@ -17,7 +17,7 @@ public class Main {
         int k = Integer.parseInt(inputString);
 
 
-        System.out.println("Algorithm is running . . .");
+        System.out.println("Algorithm is running with example dataset");
 
         //// Applying the TUFP algorithm
         AlgorithmTUFP<String, Integer, Double> tufp = new AlgorithmTUFP<>();
@@ -26,6 +26,6 @@ public class Main {
         System.out.println("===================================================");
         System.out.println("Algorithm finished and result is saved in file 'output.txt' ");
 
-        tufp.printStats("out/output.txt");
+        tufp.printStats("../../out/output.txt");
     }
 }

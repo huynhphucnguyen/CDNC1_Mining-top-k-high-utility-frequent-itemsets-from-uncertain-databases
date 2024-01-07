@@ -35,36 +35,32 @@ public class Cup<T1, T2, T3> implements CupInterface<T1, T2, T3> {
         expSupOfPattern = prob;
     }
 
+    //setters and getter for Cup
     @Override
     public void setMax(T3 prob){
         Max = prob;
     }
 
-    //get name of cup
     @Override
     public T1 getNamePattern() {
         return namePattern;
     }
 
-    //get expSup of cup
     @Override
     public T3 getExpSupOfPattern() {
         return expSupOfPattern;
     }
 
-    //get tep list of cup
     @Override
     public List<Tep<T2, T3>> getTEPList() {
         return Tep;
     }
 
-    //get max value in tep
     @Override
     public T3 getMax() {
         return Max;
     }
 
-    //use to print cup
     @Override
     public String toString() {
         return "NamePattern: " + namePattern + "\n expSupOfPattern: " + expSupOfPattern + "\n TEPList: \n" + Tep + "\n Max: " + Max + "\n";

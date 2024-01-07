@@ -20,7 +20,7 @@ public class MainTestTUFPRetail {
         int k = Integer.parseInt(inputString);
 
 
-        System.out.println("Algorithm is running . . .");
+        System.out.println("Algorithm is running with retail");
 
         //// Applying the TUFP algorithm
         AlgorithmTUFP<String, Integer, Double> tufp = new AlgorithmTUFP<>();

@@ -7,6 +7,7 @@ package main.interfaces;
  */
 public interface TepInterface <T1, T2>{
 
+    //getters for TEP
     public T1 getTID();
 
     public T2 getExistentialProbability();

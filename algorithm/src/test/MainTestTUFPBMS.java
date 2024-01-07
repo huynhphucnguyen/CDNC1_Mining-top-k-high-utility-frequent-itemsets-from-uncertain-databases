@@ -20,7 +20,7 @@ public class MainTestTUFPBMS {
         int k = Integer.parseInt(inputString);
 
 
-        System.out.println("Algorithm is running . . .");
+        System.out.println("Algorithm is running BMS-POS");
 
         //// Applying the TUFP algorithm
         AlgorithmTUFP<String, Integer, Double> tufp = new AlgorithmTUFP<>();

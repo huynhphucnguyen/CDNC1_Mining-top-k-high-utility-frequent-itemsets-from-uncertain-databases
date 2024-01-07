@@ -9,6 +9,7 @@ import java.util.List;
  */
 public interface TransactionInterface <T1, T2>{
 
+    // getters for Transaction
     public List<T1> getItems();
 
     public List<T2> getProbabilities();
