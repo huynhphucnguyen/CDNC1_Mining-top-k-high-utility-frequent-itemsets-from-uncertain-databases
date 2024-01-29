@@ -1,0 +1,25 @@
+minUtil: 23.75
+a, d, e, b : 38
+
+a, d, e : 35
+
+a : 32
+
+a, b : 31
+
+a, e, b : 30
+
+a, d, b : 29
+
+a, e : 27
+
+a, d : 26
+
+a, c : 24
+
+=============  TOP-K UFPs v1.20 - STATS =============
+ Transactions count from database : 8
+ Candidates count : 22
+ Maximum memory usage : 3.7630157470703125 mb
+ Total time ~ 52 ms
+===================================================
