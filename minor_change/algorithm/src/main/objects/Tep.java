@@ -4,40 +4,49 @@ import main.interfaces.TepInterface;
 
 /**
  * a Tep object
- * @param <T>  is type of TID and utility in TEP
+ * @param <T1>  is type of TID in TEP
+ * @param <T2>  is type of existential probability, expected support
  */
-public class Tep<T> implements TepInterface<T> {
-    private final T TID;
-    private final T utility;
-    private  final T transUtil;
+public class Tep<T1, T2> implements TepInterface<T1, T2> {
+    private final T1 TID;
+    private final T2 existentialProbability;
+    private  final T1 utility;
+
+    private final  T1 transUtil;
 
     /**
-     * constructor
-     * @param TID transaction Identify
-     * @param utility of item in a TID
-     * @param transUtil is utility of transaction
+     * contructor method
+     * @param TID transaction ID
+     * @param existentialProbability Prob of each TID in tep
      */
-    public Tep(T TID, T utility, T transUtil){
+    public Tep(T1 TID, T2 existentialProbability, T1 utility, T1 transUtil){
         this.TID = TID;
+        this.existentialProbability = existentialProbability;
         this.utility = utility;
         this.transUtil = transUtil;
     }
 
-    //get TID of tep
-    public T getTID(){
+    //getters of TEP class
+    @Override
+    public T1 getTID(){
         return this.TID;
     }
 
-    //get utility
-    public T getUtility(){
+    @Override
+    public T2 getExistentialProbability(){
+        return this.existentialProbability;
+    }
+
+    @Override
+    public T1 getUtility() {
         return this.utility;
     }
 
-    //get transaction utility
-    public  T getTransUtility(){ return this.transUtil;}
+    @Override
+    public T1 getTransUtil(){ return this.transUtil; }
 
     @Override
     public String toString(){
-        return TID + ": " + utility+ ": " + transUtil;
+        return TID + ": " + existentialProbability + ": " + utility  + ": " + transUtil;
     }
 }

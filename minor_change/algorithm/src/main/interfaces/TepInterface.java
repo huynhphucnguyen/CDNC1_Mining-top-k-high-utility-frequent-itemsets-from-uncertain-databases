@@ -2,15 +2,18 @@ package main.interfaces;
 
 /**
  * Interface of Tep
- * @param <T> type of TID (transaction ID) and utility
+ * @param <T1> type of TID (transaction ID)
+ * @param <T2> type of existential probability
  */
-public interface TepInterface <T>{
+public interface TepInterface <T1, T2>{
 
     //getters for TEP
-    public T getTID();
+    public T1 getTID();
 
-    public T getUtility();
+    public T2 getExistentialProbability();
 
-    public T getTransUtility();
+    public T1 getUtility();
+
+    public T1 getTransUtil();
 
 }

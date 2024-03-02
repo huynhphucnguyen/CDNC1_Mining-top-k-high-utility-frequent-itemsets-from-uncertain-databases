@@ -6,7 +6,7 @@ public class Main {
     public static void main(String[] args) {
 
         //get path of data file
-        String filePath = "../../data/DB_Utility.txt";
+        String filePath = "../../data/database.txt";
 
         Scanner scanner = new Scanner(System.in);
         // Taking input as String
@@ -21,11 +21,11 @@ public class Main {
 
         //// Applying the TUFP algorithm
         AlgorithmTUFP<String, Integer, Double> tufp = new AlgorithmTUFP<>();
-        tufp.runTUFPAlgorithm(filePath,0.3125, k);
+        tufp.runTUFPAlgorithm(filePath, k);
 
         System.out.println("===================================================");
         System.out.println("Algorithm finished and result is saved in file 'output.txt' ");
 
-        tufp.printStats("../../out/output_utility.txt");
+        tufp.printStats("../../out/output.txt");
     }
 }

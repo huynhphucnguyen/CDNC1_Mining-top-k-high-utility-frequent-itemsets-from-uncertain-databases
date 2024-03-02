@@ -8,36 +8,50 @@ import java.util.List;
 /**
  * a Cup object
  * @param <T1>  is type of item' name
- * @param <T2>  is type of TID, utility and Max
+ * @param <T2>  is type of TID, Utility in TEP and transaction weight utility
+ * @param <T3>  is type of existential probability, expected support
  */
-public class Cup<T1, T2> implements CupInterface<T1, T2> {
+public class Cup<T1, T2, T3> implements CupInterface<T1, T2, T3> {
     T1 namePattern;
+    T3 expSupOfPattern;
+    List<Tep<T2, T3>> Tep;
+    T3 Max;
+    T2 transWeiUtil;
     T2 utility;
-    List<Tep<T2>> Tep;
-    T2 TWU;
 
     /**
-     * constructor method
+     * contructor method
      * @param namePattern name of cup
-     * @param utility expSup of cup
+     * @param expSupOfPattern expSup of cup
      * @param Tep tep list in cup
-     * @param TWU max value in tep
+     * @param Max max value in tep
+     * @param transWeiUtil (transaction weight utility) sum of all transaction's utilities contain item/itemset X
      */
-    public Cup(T1 namePattern, T2 utility, List<Tep<T2>> Tep, T2 TWU){
+    public Cup(T1 namePattern, T3 expSupOfPattern, List<Tep<T2, T3>> Tep, T3 Max, T2 transWeiUtil, T2 utility){
         this.namePattern = namePattern;
-        this.utility = utility;
+        this.expSupOfPattern = expSupOfPattern;
         this.Tep = Tep;
-        this.TWU = TWU;
+        this.Max = Max;
+        this.transWeiUtil = transWeiUtil;
+        this.utility = utility;
     }
     @Override
-    public void setUtil(T2 util){
-        utility = util;
+    public void setExpSupOfPattern(T3 prob){
+        expSupOfPattern = prob;
     }
 
     //setters and getter for Cup
     @Override
-    public void setTransWeiUtil(T2 util){
-        TWU = util;
+    public void setMax(T3 prob){
+        Max = prob;
+    }
+
+    @Override
+    public void setTransWeiUtil(T2 utility){ transWeiUtil = utility; }
+
+    @Override
+    public void setUtility(T2 utility) {
+        this.utility = utility;
     }
 
     @Override
@@ -46,22 +60,31 @@ public class Cup<T1, T2> implements CupInterface<T1, T2> {
     }
 
     @Override
-    public T2 getUtil() {
-        return utility;
+    public T3 getExpSupOfPattern() {
+        return expSupOfPattern;
     }
 
     @Override
-    public List<Tep<T2>> getTEPList() {
+    public List<Tep<T2, T3>> getTEPList() {
         return Tep;
     }
 
     @Override
-    public T2 getTransWeiUtil() {
-        return TWU;
+    public T3 getMax() {
+        return Max;
+    }
+
+    @Override
+    public  T2 getTransWeiUtil(){ return transWeiUtil; }
+
+    @Override
+    public T2 getUtility() {
+        return utility;
     }
 
     @Override
     public String toString() {
-        return "NamePattern: " + namePattern + "\n Utility: " + utility + "\n TEPList: \n" + Tep + "\n TWU: " + TWU + "\n";
+        return "NamePattern: " + namePattern + "\n expSupOfPattern: " + expSupOfPattern + "\n Utility: " + utility +
+                "\n TEPList: \n" + Tep + "\n Max: " + Max + "\n TWU: " + transWeiUtil +"\n" ;
     }
 }
