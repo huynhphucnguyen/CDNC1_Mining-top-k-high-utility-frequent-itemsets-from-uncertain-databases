@@ -1,6 +1,6 @@
 # CDNC1_Mining-top-k-high-utility-frequent-patterns-from-uncertain-databases
 
-THỰC HIÊN CHẠY THUẬT TOÁN TRONG TERMINAL CỦA INTELLIJ
+THỰC HIÊN CHẠY THUẬT TOÁN TRONG TERMINAL CỦA INTELLIJ/ COMMAND PROMPT
 
 I - Chuẩn bị chạy chương trình:
 
