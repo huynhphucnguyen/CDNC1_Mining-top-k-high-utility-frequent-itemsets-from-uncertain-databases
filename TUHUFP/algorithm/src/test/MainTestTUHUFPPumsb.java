@@ -10,7 +10,7 @@ public class MainTestTUHUFPPumsb {
 
         //the number of UHUFPs
         int k = 900;
-        double percentage = 0.002;
+        double percentage = 0.012;
 
         System.out.println("Algorithm is running on Pumsb");
 

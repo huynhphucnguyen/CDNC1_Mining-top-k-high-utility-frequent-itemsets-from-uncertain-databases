@@ -76,6 +76,9 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
                 //increment databaseSize (number of transaction)
                 databaseSize ++;
             }
+            // Sort CUP-lists
+            cupl.sort((t1, t2) ->
+                    Double.compare(t2.getExpSupOfPattern().doubleValue(), t1.getExpSupOfPattern().doubleValue()));
             minUtil = (T2) Double.valueOf(databaseUtil*percentage);
         } catch (IOException e) {
             //stop the algorithm if file not found
@@ -101,7 +104,7 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
 
         int j = 0;
         for (int i=0; i<probList.length; i++){
-            // check prob equal 0 is true or not, if not add to item's list and probability's list
+            // check prob equal 0 is true or not
             if (!probList[i].equals("0")){
                 T3 probability = (T3) Double.valueOf(probList[i]);
                 T2 utilValue = (T2) Integer.valueOf(utilList[j]);
@@ -120,9 +123,7 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
                 if (!cupExists) {
                     createNewCup((T1) itemName[i], probability, (T2) TID, transUtil, utilValue);
                 }
-                // Sort top UHUFPs
-                cupl.sort((t1, t2) ->
-                        Double.compare(t2.getExpSupOfPattern().doubleValue(), t1.getExpSupOfPattern().doubleValue()));
+
             }
         }
         // increment utility of database
@@ -349,6 +350,7 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
                 if (overestimate < threshold.doubleValue()) {
                     break;
                 }
+
                 //combine two of cup X and cup Y
                 Cup<T1, T2, T3> combined = combineCup(currentCup.get(i), currentCup.get(j));
 
