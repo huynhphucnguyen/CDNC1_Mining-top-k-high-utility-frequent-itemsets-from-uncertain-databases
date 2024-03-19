@@ -1,6 +1,7 @@
 package main.interfaces;
 
 import main.objects.Cup;
+import main.objects.CupOptimal;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ public interface AlgorithmTUHUFPInterface <T1, T2, T3>{
     public void readData(String filePath, double percentage, int k);
     // use searching top-k UHUFPs
     public void TUHUFPSearch(List<Cup<T1, T2, T3>> queue, int k);
+    public void TUHUFPSearchOptimal(List<CupOptimal<T1, T2, T3>> queue, int k);
     // run TUHUFP algorithm
     public void runTUHUFPAlgorithm(String filePath, double percentage, int k);
 

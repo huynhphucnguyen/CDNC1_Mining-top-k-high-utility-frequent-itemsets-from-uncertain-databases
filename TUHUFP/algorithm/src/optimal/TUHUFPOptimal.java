@@ -1,4 +1,5 @@
-package main;
+package optimal;
+
 
 import java.io.*;
 import java.util.*;
@@ -10,11 +11,12 @@ import main.resource.MemoryLogger;
 /**
  * This is an implementation of the TUHUFP algorithm.
  * The TUHUFP algorithm use to mining top k uncertain high utility frequent patterns
+ *
  * @param <T1> type of name's UHUFPs
  * @param <T2> type of TID in TEP list of CUP and the utility's value
  * @param <T3> type of Expected Support, item's probability, threshold
  */
-public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends Number & Comparable <T3>> implements AlgorithmTUHUFPInterface<T1, T2, T3> {
+public class TUHUFPOptimal<T1, T2 extends Number & Comparable<T2>, T3 extends Number & Comparable<T3>> implements AlgorithmTUHUFPInterface<T1, T2, T3> {
 
     /** start time of latest execution */
     long startTimestamp = 0;
@@ -32,10 +34,10 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
     private int candidates = 0;
 
     /** the result top-k UHUFP in the end */
-    public List<UHUFP<T1, T2, T3>> topUFP;
+    public PriorityQueue<UHUFP<T1, T2, T3>> topUHUFP;
 
-    /** contain the 1-cups */
-    public Map<T1, Cup<T1, T2, T3>> singleCup;
+    /** contain the  1-cups */
+    public Map<T1, CupOptimal<T1, T2, T3>> singleCup;
 
     /** threshold is the condition to get into top-k UHUFP */
     public T3 threshold =  (T3) Double.valueOf(Double.MIN_VALUE);
@@ -54,7 +56,7 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
         String[] path = filePath.split(", ");
         // use try-with-resource to read file with BufferedReader
         try (BufferedReader reader1 = new BufferedReader(new FileReader(path[0]));
-            BufferedReader reader2 = new BufferedReader(new FileReader(path[1]))) {
+             BufferedReader reader2 = new BufferedReader(new FileReader(path[1]))) {
             System.out.println("Reading data . . .");
 
             singleCup = new HashMap<>();
@@ -72,13 +74,24 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
                 //increment databaseSize (number of transaction)
                 databaseSize ++;
             }
+            // reset memory usage
+            MemoryLogger.getInstance().reset();
+            // Sort CUP-lists
+            /* cupl.sort((t1, t2) ->
+                    Double.compare(t2.getExpSupOfPattern().doubleValue(), t1.getExpSupOfPattern().doubleValue()));*/
             minUtil = (T2) Double.valueOf(databaseUtil*percentage);
+
         } catch (IOException e) {
             //stop the algorithm if file not found
             System.out.println("File not found: " + e.getMessage());
             System.out.println("STOP ALGORITHM !!!");
             System.exit(0);
         }
+    }
+
+    @Override
+    public void TUHUFPSearch(List<Cup<T1, T2, T3>> queue, int k) {
+
     }
 
     /**
@@ -102,9 +115,8 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
                 T3 probability = (T3) Double.valueOf(probList[i]);
                 T2 utilValue = (T2) Integer.valueOf(utilList[j]);
                 j++;
-
                 T1 cupName = (T1) itemName[i];
-                Cup<T1, T2, T3> cup = singleCup.get(cupName);
+                CupOptimal<T1, T2, T3> cup = singleCup.get(cupName);
                 if (cup != null) {
                     // Cup exists, update it
                     updateCupList(cup, probability, (T2) TID, transUtil, utilValue);
@@ -112,7 +124,6 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
                     // Cup doesn't exist, create a new one and add it to the map
                     createNewCup(cupName, probability, (T2) TID, transUtil, utilValue);
                 }
-
             }
         }
         // increment utility of database
@@ -127,7 +138,7 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
      * @param transUtil transaction's utility where item located
      * @param utilValue item's utility
      */
-    public void updateCupList(Cup<T1, T2, T3> cup, T3 probability, T2 TID, T2 transUtil, T2 utilValue){
+    public void updateCupList(CupOptimal<T1, T2, T3> cup, T3 probability, T2 TID, T2 transUtil, T2 utilValue){
         double expSup = cup.getExpSupOfPattern().doubleValue() + probability.doubleValue();
         int utility = cup.getUtility().intValue() + utilValue.intValue();
         cup.setExpSupOfPattern((T3) Double.valueOf((Math.round(expSup*100.0)/100.0)));
@@ -152,7 +163,7 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
     public void createNewCup(T1 name, T3 probability, T2 TID, T2 transUtil, T2 utilValue){
         List<Tep<T2, T3>> tepList = new ArrayList<>();
         tepList.add(new Tep<>((T2) TID, probability, utilValue, transUtil));
-        Cup<T1, T2, T3> cup = new Cup<>(name, probability, tepList, probability, transUtil, utilValue);
+        CupOptimal<T1, T2, T3> cup = new CupOptimal<>(name, probability, tepList, probability, transUtil, utilValue);
         //cupl.add(cup);
         singleCup.put(cup.getNamePattern(), cup);
     }
@@ -161,29 +172,28 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
      * method to get first top-k
      * @param k number elements in top
      */
-    public List<Cup<T1, T2, T3>> getFirstHUFP(T2 minUtil, int k){
-        topUFP = new ArrayList<>();
-        List<Cup<T1, T2, T3>> candidateList = new ArrayList<>();
-
-        // Sort CUP-lists
-        List<Cup<T1, T2, T3>> cupList = new ArrayList<>(singleCup.values());
+    public List<CupOptimal<T1, T2, T3>> getFirstHUFP(T2 minUtil, int k){
+        topUHUFP = new PriorityQueue<>(k, (t1, t2) -> {
+            // Sort topUHUFP in descending order of expected support
+            return Double.compare(t1.getExpSupOfPattern().doubleValue(), t2.getExpSupOfPattern().doubleValue());
+        });
+        List<CupOptimal<T1, T2, T3>> candidateList = new ArrayList<>();
+        List<CupOptimal<T1, T2, T3>> cupList = new ArrayList<>(singleCup.values());
+        singleCup.clear();
         cupList.sort((t1, t2) ->
                 Double.compare(t2.getExpSupOfPattern().doubleValue(), t1.getExpSupOfPattern().doubleValue()));
-
         for(int i = 0; i<k && i<cupList.size(); i++){
-            Cup<T1, T2, T3> cup = cupList.get(i);
+            CupOptimal<T1, T2, T3> cup = cupList.get(i);
 //            System.out.println(cup.getNamePattern() + "====="+ cup.getUtility());
             // check the supersets of item may is high utility, then add into candidate high utility list
             if (cup.getTransWeiUtil().intValue() >= minUtil.intValue()){
                 candidateList.add(cup);
-
             }
             // add to the result
             if (cup.getUtility().intValue() >= minUtil.intValue()){
-                topUFP.add(new UHUFP<>(cup.getNamePattern(), cup.getExpSupOfPattern(), cup.getUtility()));
-                topUFP.sort((t1, t2) ->
-                        Double.compare(t2.getExpSupOfPattern().doubleValue(), t1.getExpSupOfPattern().doubleValue()));
+                topUHUFP.add(new UHUFP<>(cup.getNamePattern(), cup.getExpSupOfPattern(), cup.getUtility()));
             }
+
         }
         return candidateList;
     }
@@ -261,12 +271,18 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
      * @param cupY cup of item Y
      * @return a combined CUP
      */
-    public Cup<T1, T2, T3> combineCup(Cup<T1, T2, T3> cupX, Cup<T1, T2, T3> cupY) {
+    public CupOptimal<T1, T2, T3> combineCup(CupOptimal<T1, T2, T3> cupX, CupOptimal<T1, T2, T3> cupY) {
         //combine name's CupX with name's Cup Y --> name of Cup XY
         T1 nameXY = removeDuplicates( cupX.getNamePattern()+", "+cupY.getNamePattern());
         String[] countedTwice = nameXY.toString().split(", ");
-        //combine tep list
-        List<Tep<T2, T3>> tepListXY = combineTep(cupX.getTEPList(), singleCup.get(countedTwice[countedTwice.length-1]).getTEPList());
+        List<Tep<T2, T3>> tepListXY;
+        if (cupY.getLast()==null){
+            //combine tep list
+            tepListXY = combineTep(cupX.getTEPList(), cupY.getTEPList());
+        }else {
+            //combine tep list
+            tepListXY = combineTep(cupX.getTEPList(), cupY.getLast().getTEPList());
+        }
         //max of Prob in TEP of Cup XY
         T3 maxXY = (T3) Double.valueOf(0.0);
 
@@ -289,8 +305,14 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
         }
         T3 expSup = (T3) Double.valueOf(sumProb);
         T2 utility = (T2) Integer.valueOf(sumUtil);
+        CupOptimal<T1, T2, T3> last;
+        if (cupY.getLast()==null){
+            last = cupY;
+        }else {
+            last = cupY.getLast();
+        }
         //return the new cup after combined
-        return new Cup<>(nameXY, expSup, tepListXY, maxXY, (T2) Integer.valueOf(twuXY), utility);
+        return new CupOptimal<>(nameXY, expSup, tepListXY, maxXY, (T2) Integer.valueOf(twuXY), utility, last);
 
     }
 
@@ -299,25 +321,18 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
      * @param combined a combined CUP
      * @param k number of top-k UHUFPs
      */
-    private void TUHUFPSearchHelper(Cup<T1, T2, T3> combined, int k) {
+    private void TUHUFPSearchHelper(CupOptimal<T1, T2, T3> combined, int k) {
         //check if it is high utility or not
         if (combined.getUtility().intValue() >= minUtil.intValue()){
             //insert new UHUFP into top-k
-            topUFP.add(new UHUFP<>(combined.getNamePattern(), combined.getExpSupOfPattern(), combined.getUtility()));
-            //use Comparable to sort topUHUFP
-            topUFP.sort((t1, t2) -> {
-                // Sort topUFP
-                return Double.compare(t2.getExpSupOfPattern().doubleValue(), t1.getExpSupOfPattern().doubleValue());
-            });
+            topUHUFP.add(new UHUFP<>(combined.getNamePattern(), combined.getExpSupOfPattern(), combined.getUtility()));
         }
-        //if size of top-k UHUFP > k
-        if (topUFP.size() > k) {
-            topUFP.remove(topUFP.size() - 1); //remove last UFP
+        if (topUHUFP.size()>k){
+            topUHUFP.poll(); // Remove the element with the lowest priority
         }
-
-        if (topUFP.size() == k){
-            //set new threshold
-            threshold = topUFP.get(topUFP.size() - 1).getExpSupOfPattern();
+        if (topUHUFP.size() == k){
+            assert topUHUFP.peek() != null;
+            threshold = topUHUFP.peek().getExpSupOfPattern(); //set new threshold
         }
     }
 
@@ -327,15 +342,15 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
      * @param k number elements in top-k UHUFPs
      */
     @Override
-    public void TUHUFPSearch(List<Cup<T1, T2, T3>> currentCup, int k){
+    public void TUHUFPSearchOptimal(List<CupOptimal<T1, T2, T3>> currentCup, int k){
         //if size of current cup list <= 1, stop searching
-        if(currentCup.size()<=1) {
+        if(currentCup.size()==1) {
             return;
         }
         // for each cup in current cup list begin at 1st cup -> size - 1 cup
         for(int i=0; i<currentCup.size()-1; i++){
             //a new cup list wi ll use to the next search
-            List<Cup<T1, T2, T3>> newCupList = new ArrayList<>();
+            List<CupOptimal<T1, T2, T3>> newCupList = new ArrayList<>();
             // for each cup in current cup list begin at the 2nd cup -> end
             for(int j=i+1; j<currentCup.size(); j++){
                 // calculate overestimate
@@ -344,13 +359,8 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
                 if (overestimate < threshold.doubleValue()) {
                     break;
                 }
-
                 //combine two of cup X and cup Y
-                Cup<T1, T2, T3> combined = combineCup(currentCup.get(i), currentCup.get(j));
-
-//                System.out.println(combined.getNamePattern()+ " : "+ combined.getUtility() +" : " + minUtil
-//                        + " : "+ combined.getExpSupOfPattern()+ " : "+ threshold);
-
+                CupOptimal<T1, T2, T3> combined = combineCup(currentCup.get(i), currentCup.get(j));
                 //if expSup of cupXY > threshold
                 if (combined.getExpSupOfPattern().doubleValue() > threshold.doubleValue()) {
                     //insert new UHUFP into top-k
@@ -359,18 +369,14 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
                     if (combined.getTransWeiUtil().intValue() >= minUtil.intValue()){
                         // add combined cup for next search
                         newCupList.add(combined);
-                       // System.out.println(combined.getNamePattern());
+                        //System.out.println(combined.getNamePattern()+"====="+ combined.getLast().getNamePattern());
                         candidates++; //increment the candidate
                     }
                 }
             }
-            TUHUFPSearch(newCupList,k); //continue search
+            //singleCup.remove(currentCup.get(i).getNamePattern());
+            TUHUFPSearchOptimal(newCupList,k); //continue search
         }
-    }
-
-    @Override
-    public void TUHUFPSearchOptimal(List<CupOptimal<T1, T2, T3>> queue, int k) {
-
     }
 
     /**
@@ -384,9 +390,6 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
         // record start time
         startTimestamp = System.currentTimeMillis();
 
-        // reset memory usage
-        MemoryLogger.getInstance().reset();
-
         // reset number of candidates found
         candidates = 0;
 
@@ -397,24 +400,19 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
         readData(filePath, percentage, k);
 
         // candidate's list engage to find the result
-        List<Cup<T1, T2, T3>> candidateList = getFirstHUFP(minUtil, k);
-
-        // handle the null cup
-        if(singleCup.isEmpty()) {
-            System.out.println("There isn't CUP List which was created. STOP ALGORITHM !!!");
-            System.exit(0);
-        }
+        List<CupOptimal<T1, T2, T3>> candidateList = getFirstHUFP(minUtil, k);
 
         // number of candidates
         candidates = candidateList.size();
 
         //set threshold
-        if (topUFP.size()==k){
-            threshold = topUFP.get(topUFP.size() - 1).getExpSupOfPattern();
+        if (topUHUFP.size()==k){
+            assert topUHUFP.peek() != null;
+            threshold = topUHUFP.peek().getExpSupOfPattern();
         }
 
         //start searching
-        TUHUFPSearch(candidateList,k);
+        TUHUFPSearchOptimal(candidateList,k);
         // check memory usage
         MemoryLogger.getInstance().checkMemory();
 
@@ -446,7 +444,12 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
         try (PrintWriter outputWriter = new PrintWriter(path)) {
             outputWriter.println("minUtil: " + minUtil);
 
-            for (UHUFP<T1, T2, T3> t : topUFP) {
+            List<UHUFP<T1, T2, T3>> list = new ArrayList<>(topUHUFP);
+            list.sort((t1, t2) -> {
+                // Sort topUFP
+                return Double.compare(t2.getExpSupOfPattern().doubleValue(), t1.getExpSupOfPattern().doubleValue());
+            });
+            for(UHUFP<T1, T2, T3> t:list) {
                 // write top k to the file
                 outputWriter.println(t);
             }
@@ -469,3 +472,4 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
                 .println("===================================================");
     }
 }
+
