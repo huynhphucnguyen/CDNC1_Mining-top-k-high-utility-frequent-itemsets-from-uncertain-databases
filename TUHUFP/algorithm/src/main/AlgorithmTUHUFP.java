@@ -32,7 +32,7 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
     private int candidates = 0;
 
     /** the result top-k UHUFP in the end */
-    public List<UHUFP<T1, T2, T3>> topUFP;
+    public List<UHUFP<T1, T2, T3>> topUHUFP;
 
     /** contain the 1-cups */
     public Map<T1, Cup<T1, T2, T3>> singleCup;
@@ -46,7 +46,7 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
     /**
      * read the input file an uncertain dataset (transactions)
      * @param filePath path to dataset file
-     * @param percentage to set min utility to find high utility
+     * @param percentage minimum utility (%)
      * @param k number of top-k UHUFP
      */
     @Override
@@ -159,10 +159,11 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
 
     /**
      * method to get first top-k
+     * @param minUtil minimum utility
      * @param k number elements in top
      */
-    public List<Cup<T1, T2, T3>> getFirstHUFP(T2 minUtil, int k){
-        topUFP = new ArrayList<>();
+    public List<Cup<T1, T2, T3>> getFirstUHUFP(T2 minUtil, int k){
+        topUHUFP = new ArrayList<>();
         List<Cup<T1, T2, T3>> candidateList = new ArrayList<>();
 
         // Sort CUP-lists
@@ -180,8 +181,8 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
             }
             // add to the result
             if (cup.getUtility().intValue() >= minUtil.intValue()){
-                topUFP.add(new UHUFP<>(cup.getNamePattern(), cup.getExpSupOfPattern(), cup.getUtility()));
-                topUFP.sort((t1, t2) ->
+                topUHUFP.add(new UHUFP<>(cup.getNamePattern(), cup.getExpSupOfPattern(), cup.getUtility()));
+                topUHUFP.sort((t1, t2) ->
                         Double.compare(t2.getExpSupOfPattern().doubleValue(), t1.getExpSupOfPattern().doubleValue()));
             }
         }
@@ -303,21 +304,21 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
         //check if it is high utility or not
         if (combined.getUtility().intValue() >= minUtil.intValue()){
             //insert new UHUFP into top-k
-            topUFP.add(new UHUFP<>(combined.getNamePattern(), combined.getExpSupOfPattern(), combined.getUtility()));
+            topUHUFP.add(new UHUFP<>(combined.getNamePattern(), combined.getExpSupOfPattern(), combined.getUtility()));
             //use Comparable to sort topUHUFP
-            topUFP.sort((t1, t2) -> {
-                // Sort topUFP
+            topUHUFP.sort((t1, t2) -> {
+                // Sort topUHUFP
                 return Double.compare(t2.getExpSupOfPattern().doubleValue(), t1.getExpSupOfPattern().doubleValue());
             });
         }
         //if size of top-k UHUFP > k
-        if (topUFP.size() > k) {
-            topUFP.remove(topUFP.size() - 1); //remove last UFP
+        if (topUHUFP.size() > k) {
+            topUHUFP.remove(topUHUFP.size() - 1); //remove last UFP
         }
 
-        if (topUFP.size() == k){
+        if (topUHUFP.size() == k){
             //set new threshold
-            threshold = topUFP.get(topUFP.size() - 1).getExpSupOfPattern();
+            threshold = topUHUFP.get(topUHUFP.size() - 1).getExpSupOfPattern();
         }
     }
 
@@ -334,7 +335,7 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
         }
         // for each cup in current cup list begin at 1st cup -> size - 1 cup
         for(int i=0; i<currentCup.size()-1; i++){
-            //a new cup list wi ll use to the next search
+            //a new cup list will use to the next search
             List<Cup<T1, T2, T3>> newCupList = new ArrayList<>();
             // for each cup in current cup list begin at the 2nd cup -> end
             for(int j=i+1; j<currentCup.size(); j++){
@@ -376,6 +377,7 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
     /**
      * method to run TUHUFP algorithm
      * @param filePath path of database file
+     * @param percentage minimum utility (%)
      * @param k number elements of top-k UHUFPs
      */
     @Override
@@ -397,7 +399,7 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
         readData(filePath, percentage, k);
 
         // candidate's list engage to find the result
-        List<Cup<T1, T2, T3>> candidateList = getFirstHUFP(minUtil, k);
+        List<Cup<T1, T2, T3>> candidateList = getFirstUHUFP(minUtil, k);
 
         // handle the null cup
         if(singleCup.isEmpty()) {
@@ -409,8 +411,8 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
         candidates = candidateList.size();
 
         //set threshold
-        if (topUFP.size()==k){
-            threshold = topUFP.get(topUFP.size() - 1).getExpSupOfPattern();
+        if (topUHUFP.size()==k){
+            threshold = topUHUFP.get(topUHUFP.size() - 1).getExpSupOfPattern();
         }
 
         //start searching
@@ -446,7 +448,7 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
         try (PrintWriter outputWriter = new PrintWriter(path)) {
             outputWriter.println("minUtil: " + minUtil);
 
-            for (UHUFP<T1, T2, T3> t : topUFP) {
+            for (UHUFP<T1, T2, T3> t : topUHUFP) {
                 // write top k to the file
                 outputWriter.println(t);
             }

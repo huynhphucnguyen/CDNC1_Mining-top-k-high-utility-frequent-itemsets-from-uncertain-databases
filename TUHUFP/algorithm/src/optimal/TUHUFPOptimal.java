@@ -48,7 +48,7 @@ public class TUHUFPOptimal<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
     /**
      * read the input file an uncertain dataset (transactions)
      * @param filePath path to dataset file
-     * @param percentage to set min utility to find high utility
+     * @param percentage minimum utility (%)
      * @param k number of top-k UHUFP
      */
     @Override
@@ -170,9 +170,10 @@ public class TUHUFPOptimal<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
 
     /**
      * method to get first top-k
+     * @param minUtil minimum utility
      * @param k number elements in top
      */
-    public List<CupOptimal<T1, T2, T3>> getFirstHUFP(T2 minUtil, int k){
+    public List<CupOptimal<T1, T2, T3>> getFirstUHUFP(T2 minUtil, int k){
         topUHUFP = new PriorityQueue<>(k, (t1, t2) -> {
             // Sort topUHUFP in descending order of expected support
             return Double.compare(t1.getExpSupOfPattern().doubleValue(), t2.getExpSupOfPattern().doubleValue());
@@ -382,6 +383,7 @@ public class TUHUFPOptimal<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
     /**
      * method to run TUHUFP algorithm
      * @param filePath path of database file
+     * @param percentage minimum utility (%)
      * @param k number elements of top-k UHUFPs
      */
     @Override
@@ -400,7 +402,7 @@ public class TUHUFPOptimal<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
         readData(filePath, percentage, k);
 
         // candidate's list engage to find the result
-        List<CupOptimal<T1, T2, T3>> candidateList = getFirstHUFP(minUtil, k);
+        List<CupOptimal<T1, T2, T3>> candidateList = getFirstUHUFP(minUtil, k);
 
         // number of candidates
         candidates = candidateList.size();

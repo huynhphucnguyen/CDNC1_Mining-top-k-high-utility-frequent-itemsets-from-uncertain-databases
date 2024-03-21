@@ -9,9 +9,9 @@ import main.interfaces.UHUFPInterface;
  * @param <T3> type of expected support
  */
 public class UHUFP<T1, T2, T3> implements UHUFPInterface<T1, T2, T3> {
-    T1 namePattern;
-    T3 expSupOfPattern;
-    T2 utility;
+    private T1 namePattern;
+    private T3 expSupOfPattern;
+    private T2 utility;
 
     //constructor method
     public UHUFP(T1 namePattern, T3 expSupOfPattern, T2 utility){

@@ -15,7 +15,7 @@ public class Tep<T1, T2> implements TepInterface<T1, T2> {
     private final  T1 transUtil;
 
     /**
-     * contructor method
+     * constructor method
      * @param TID transaction ID
      * @param existentialProbability Prob of each TID in tep
      */
