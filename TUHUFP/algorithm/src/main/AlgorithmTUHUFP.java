@@ -448,9 +448,15 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
         try (PrintWriter outputWriter = new PrintWriter(path)) {
             outputWriter.println("minUtil: " + minUtil);
 
-            for (UHUFP<T1, T2, T3> t : topUHUFP) {
+            List<UHUFP<T1, T2, T3>> list = new ArrayList<>(topUHUFP);
+            list.sort((t1, t2) -> {
+                // Sort topUFP
+                return Double.compare(t2.getExpSupOfPattern().doubleValue(), t1.getExpSupOfPattern().doubleValue());
+            });
+            for(UHUFP<T1, T2, T3> t:list) {
                 // write top k to the file
                 outputWriter.println(t);
+                System.out.println(t);
             }
             //write statistics to the file
             writeHelper(outputWriter);
@@ -459,6 +465,7 @@ public class AlgorithmTUHUFP<T1, T2 extends Number & Comparable<T2>, T3 extends 
             // Handle the exception
             e.printStackTrace();
         }
+        System.out.println("minUtil: " + minUtil);
         // Print the statistics to the console
         System.out.println("=============  TOP-K UFPs v1.20 - STATS =============");
         System.out.println(" Transactions count from database : " + databaseSize);

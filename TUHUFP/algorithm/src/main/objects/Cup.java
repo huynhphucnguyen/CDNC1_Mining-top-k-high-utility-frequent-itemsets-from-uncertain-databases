@@ -12,12 +12,12 @@ import java.util.List;
  * @param <T3>  is type of existential probability, expected support
  */
 public class Cup<T1, T2, T3> implements CupInterface<T1, T2, T3> {
-    T1 namePattern;
-    T3 expSupOfPattern;
-    List<Tep<T2, T3>> Tep;
-    T3 Max;
-    T2 transWeiUtil;
-    T2 utility;
+   private T1 namePattern;
+   private T3 expSupOfPattern;
+   private List<Tep<T2, T3>> Tep;
+   private T3 Max;
+   private T2 transWeiUtil;
+   private T2 utility;
 
     /**
      * constructor method

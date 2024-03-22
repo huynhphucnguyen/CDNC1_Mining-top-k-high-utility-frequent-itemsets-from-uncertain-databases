@@ -454,6 +454,7 @@ public class TUHUFPOptimal<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
             for(UHUFP<T1, T2, T3> t:list) {
                 // write top k to the file
                 outputWriter.println(t);
+                System.out.println(t);
             }
             //write statistics to the file
             writeHelper(outputWriter);
@@ -462,6 +463,7 @@ public class TUHUFPOptimal<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
             // Handle the exception
             e.printStackTrace();
         }
+        System.out.println("minUtil: " + minUtil);
         // Print the statistics to the console
         System.out.println("=============  TOP-K UFPs v1.20 - STATS =============");
         System.out.println(" Transactions count from database : " + databaseSize);
