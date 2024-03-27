@@ -273,16 +273,22 @@ public class TUHUFPOptimal<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
      * @return a combined CUP
      */
     public CupOptimal<T1, T2, T3> combineCup(CupOptimal<T1, T2, T3> cupX, CupOptimal<T1, T2, T3> cupY) {
-        //combine name's CupX with name's Cup Y --> name of Cup XY
-        T1 nameXY = removeDuplicates( cupX.getNamePattern()+", "+cupY.getNamePattern());
-        String[] countedTwice = nameXY.toString().split(", ");
+        T1 nameXY;
+        CupOptimal<T1, T2, T3> last;
         List<Tep<T2, T3>> tepListXY;
+
         if (cupY.getLast()==null){
+            //combine name's CupX with name's Cup Y --> name of Cup XY
+            nameXY = (T1) (cupX.getNamePattern() + ", " + cupY.getNamePattern());
             //combine tep list
             tepListXY = combineTep(cupX.getTEPList(), cupY.getTEPList());
+            last = cupY;
         }else {
+            //combine name's CupX with name's Cup Y --> name of Cup XY
+            nameXY = (T1) (cupX.getNamePattern() + ", " + cupY.getLast().getNamePattern());
             //combine tep list
             tepListXY = combineTep(cupX.getTEPList(), cupY.getLast().getTEPList());
+            last = cupY.getLast();
         }
         //max of Prob in TEP of Cup XY
         T3 maxXY = (T3) Double.valueOf(0.0);
@@ -306,12 +312,7 @@ public class TUHUFPOptimal<T1, T2 extends Number & Comparable<T2>, T3 extends Nu
         }
         T3 expSup = (T3) Double.valueOf(sumProb);
         T2 utility = (T2) Integer.valueOf(sumUtil);
-        CupOptimal<T1, T2, T3> last;
-        if (cupY.getLast()==null){
-            last = cupY;
-        }else {
-            last = cupY.getLast();
-        }
+
         //return the new cup after combined
         return new CupOptimal<>(nameXY, expSup, tepListXY, maxXY, (T2) Integer.valueOf(twuXY), utility, last);
 
